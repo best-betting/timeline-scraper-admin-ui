@@ -114,21 +114,55 @@ export type FixturesListResponse = {
   dataStatusFilters?: string[];
 };
 
+export type SessionRequestLeg = {
+  requestId: string;
+  settlerSessionId?: string;
+  sourceMatchId?: string;
+  betId?: string;
+  marketType?: string;
+  line?: number | null;
+  outcomeKey?: string;
+  registeredAt?: string;
+  status?: string;
+  lastUpdateSentAt?: string | null;
+  lastUpdateCursor?: number | null;
+};
+
 export type MatchSessionDoc = {
   appId: string;
   matchKey: string;
+  schemaVersion?: number;
+  sessionStatus?: string;
+  phase?: string;
+  cursor?: number;
   fixtureBook?: {
     homeTeam?: string;
     awayTeam?: string;
     kickoffUtc?: string;
     tournamentName?: string;
   };
+  fixtureProvider?: Record<string, unknown>;
+  requests?: SessionRequestLeg[];
+  scheduling?: {
+    minResolutionTier?: number;
+    fetchAllowedAtUtc?: string;
+    needsGoalTimeline?: boolean;
+    needsStatistics?: boolean;
+    enrichmentEligible?: boolean;
+  };
+  providers?: Record<string, unknown>;
   lastMergedSnapshot?: Record<string, unknown>;
   facts?: Record<string, unknown>;
-  requests?: unknown[];
+  worker?: {
+    running?: boolean;
+    lastFetchAtUtc?: string | null;
+    nextScheduledAtUtc?: string | null;
+  };
   adminEdits?: unknown[];
-  cursor?: number;
-  phase?: string;
+  enrichmentExhausted?: boolean;
+  idleSinceUtc?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ArchivedMatchDoc = {

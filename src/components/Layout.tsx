@@ -10,7 +10,6 @@ const nav = [
   { to: 'requests', label: 'Requests', icon: '◎' },
   { to: 'connections', label: 'Connections', icon: '⇄' },
   { to: 'ops', label: 'Ops tuning', icon: '⚡' },
-  { to: 'api-map', label: 'API map', icon: '⌘' },
   { to: 'settings', label: 'Settings', icon: '⚙' },
 ] as const;
 

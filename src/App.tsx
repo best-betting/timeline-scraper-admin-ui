@@ -7,9 +7,9 @@ import { DashboardPage } from './pages/DashboardPage';
 import { FixturesPage } from './pages/FixturesPage';
 import { FixtureEditPage } from './pages/FixtureEditPage';
 import { SessionsPage } from './pages/SessionsPage';
+import { SessionDetailPage } from './pages/SessionDetailPage';
 import { RequestsPage } from './pages/RequestsPage';
 import { ConnectionsPage } from './pages/ConnectionsPage';
-import { ApiMapPage } from './pages/ApiMapPage';
 import { OpsConfigPage } from './pages/OpsConfigPage';
 import { SettingsPage } from './pages/SettingsPage';
 
@@ -30,10 +30,10 @@ export default function App() {
               <Route path="fixtures" element={<FixturesPage />} />
               <Route path="fixtures/edit" element={<FixtureEditPage />} />
               <Route path="sessions" element={<SessionsPage />} />
+              <Route path="sessions/detail" element={<SessionDetailPage />} />
               <Route path="requests" element={<RequestsPage />} />
               <Route path="connections" element={<ConnectionsPage />} />
               <Route path="ops" element={<OpsConfigPage />} />
-              <Route path="api-map" element={<ApiMapPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>

@@ -99,5 +99,10 @@ export function useScrapperClient() {
     [apiBaseUrl, uiAccessKey]
   );
 
-  return { get, patch, post, put, apiBaseUrl, uiAccessKey };
+  const del = useCallback(
+    <T,>(path: string) => scrapperRequest<T>(apiBaseUrl, uiAccessKey, path, { method: 'DELETE' }),
+    [apiBaseUrl, uiAccessKey]
+  );
+
+  return { get, patch, post, put, del, apiBaseUrl, uiAccessKey };
 }

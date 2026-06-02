@@ -2,6 +2,41 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import type { SessionsListResponse } from '../api/types';
 import { useScrapperClient } from '../api/client';
+import { sessionDetailHref } from '../lib/sessionPaths';
+
+function SessionCard({ s }: { s: SessionsListResponse['items'][0] }) {
+  const detailTo = sessionDetailHref(s.appId, s.matchKey);
+
+  return (
+    <Link
+      to={detailTo}
+      className="block glass rounded-xl p-4 border border-white/5 space-y-2 hover:border-accent/20 hover:bg-white/[0.02] transition-colors"
+    >
+      <div className="text-white font-medium">
+        {s.homeTeam || '—'} vs {s.awayTeam || '—'}
+      </div>
+      <div className="font-mono text-[11px] text-slate-500 break-all">{s.matchKey}</div>
+      <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs pt-1">
+        <dt className="text-slate-600">Phase</dt>
+        <dd className="text-slate-300 text-right">{s.phase || '—'}</dd>
+        <dt className="text-slate-600">Cursor</dt>
+        <dd className="font-mono text-right">{s.cursor}</dd>
+        <dt className="text-slate-600">Legs</dt>
+        <dd className="text-right">
+          {s.activeRequestCount}/{s.requestCount}
+        </dd>
+        <dt className="text-slate-600">Worker</dt>
+        <dd className="text-right">
+          <span
+            className={`text-xs px-2 py-0.5 rounded inline-block ${s.workerRunning ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-500/20 text-slate-400'}`}
+          >
+            {s.workerRunning ? 'running' : 'idle'}
+          </span>
+        </dd>
+      </dl>
+    </Link>
+  );
+}
 
 export function SessionsPage() {
   const { get, apiBaseUrl } = useScrapperClient();
@@ -19,7 +54,7 @@ export function SessionsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="page-title">Sessions</h1>
-        <p className="text-slate-500 text-sm mt-1">All match sessions (every appId)</p>
+        <p className="text-slate-500 text-sm mt-1">All match sessions (every appId). Tap a row for full detail.</p>
       </header>
 
       {sessions.error ? (
@@ -28,33 +63,7 @@ export function SessionsPage() {
 
       <div className="md:hidden space-y-3">
         {items.map((s) => (
-          <article
-            key={`${s.appId}:${s.matchKey}`}
-            className="glass rounded-xl p-4 border border-white/5 space-y-2"
-          >
-            <div className="text-white font-medium">
-              {s.homeTeam || '—'} vs {s.awayTeam || '—'}
-            </div>
-            <div className="font-mono text-[11px] text-slate-500 break-all">{s.matchKey}</div>
-            <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs pt-1">
-              <dt className="text-slate-600">Phase</dt>
-              <dd className="text-slate-300 text-right">{s.phase || '—'}</dd>
-              <dt className="text-slate-600">Cursor</dt>
-              <dd className="font-mono text-right">{s.cursor}</dd>
-              <dt className="text-slate-600">Legs</dt>
-              <dd className="text-right">
-                {s.activeRequestCount}/{s.requestCount}
-              </dd>
-              <dt className="text-slate-600">Worker</dt>
-              <dd className="text-right">
-                <span
-                  className={`text-xs px-2 py-0.5 rounded inline-block ${s.workerRunning ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-500/20 text-slate-400'}`}
-                >
-                  {s.workerRunning ? 'running' : 'idle'}
-                </span>
-              </dd>
-            </dl>
-          </article>
+          <SessionCard key={`${s.appId}:${s.matchKey}`} s={s} />
         ))}
         {!sessions.isLoading && items.length === 0 ? (
           <p className="text-center text-slate-500 py-10">No sessions</p>
@@ -76,12 +85,17 @@ export function SessionsPage() {
             {items.map((s) => (
               <tr key={`${s.appId}:${s.matchKey}`} className="border-b border-white/5 hover:bg-white/[0.02]">
                 <td className="p-3">
-                  <div className="text-white">
-                    {s.homeTeam || '—'} vs {s.awayTeam || '—'}
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500 truncate max-w-md" title={s.matchKey}>
-                    {s.matchKey}
-                  </div>
+                  <Link
+                    to={sessionDetailHref(s.appId, s.matchKey)}
+                    className="block group"
+                  >
+                    <div className="text-white group-hover:text-accent transition-colors">
+                      {s.homeTeam || '—'} vs {s.awayTeam || '—'}
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-500 truncate max-w-md" title={s.matchKey}>
+                      {s.matchKey}
+                    </div>
+                  </Link>
                 </td>
                 <td className="p-3 text-slate-300">{s.phase || '—'}</td>
                 <td className="p-3 font-mono">{s.cursor}</td>
@@ -107,13 +121,6 @@ export function SessionsPage() {
           </tbody>
         </table>
       </div>
-
-      <p className="text-xs text-slate-600">
-        Full session JSON: <code className="text-accent/80">GET /admin/v1/sessions/:appId/:matchKey</code> — detail UI coming next.{' '}
-        <Link to="api-map" className="text-accent underline">
-          API map
-        </Link>
-      </p>
     </div>
   );
 }

@@ -6,10 +6,7 @@ import { FixtureFactsEditor } from '../components/FixtureFactsEditor';
 import { LinkProcessorPanel } from '../components/LinkProcessorPanel';
 import { JsonView } from '../components/JsonView';
 import { factsToForm } from '../lib/factsForm';
-
-function sessionPath(appId: string, matchKey: string) {
-  return `/admin/v1/sessions/${encodeURIComponent(appId)}/${encodeURIComponent(matchKey)}`;
-}
+import { sessionApiPath } from '../lib/sessionPaths';
 
 function matchPath(appId: string, matchKey: string) {
   return `/admin/v1/matches/${encodeURIComponent(appId)}/${encodeURIComponent(matchKey)}`;
@@ -31,7 +28,7 @@ export function FixtureEditPage() {
         return get<ArchivedMatchDoc>(matchPath(appId, matchKey));
       }
       try {
-        return await get<MatchSessionDoc>(sessionPath(appId, matchKey));
+        return await get<MatchSessionDoc>(sessionApiPath(appId, matchKey));
       } catch (e) {
         if (e instanceof ScrapperApiError && e.status === 404) {
           return get<ArchivedMatchDoc>(matchPath(appId, matchKey));
@@ -53,7 +50,7 @@ export function FixtureEditPage() {
         source === 'session' ||
         (doc.data && 'lastMergedSnapshot' in doc.data && Array.isArray((doc.data as MatchSessionDoc).requests));
       if (isSession) {
-        return patch<MatchSessionDoc>(sessionPath(appId, matchKey), body);
+        return patch<MatchSessionDoc>(sessionApiPath(appId, matchKey), body);
       }
       return patch<ArchivedMatchDoc>(matchPath(appId, matchKey), body);
     },
