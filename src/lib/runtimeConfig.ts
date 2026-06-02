@@ -1,9 +1,8 @@
 export type ScrapperAdminRuntimeConfig = {
-  /** Same-origin path proxied to SCRAPPER_UPSTREAM by the Node server. */
+  /** Same-origin path; Node proxies to SCRAPPER_UPSTREAM. */
   apiBaseUrl: string;
   appBasePath: string;
-  /** When true, Bearer auth is injected server-side from SCRAPPER_ADMIN_API_KEY. */
-  serverAuth: boolean;
+  proxyMode: true;
 };
 
 declare global {
@@ -17,6 +16,6 @@ export function getRuntimeConfig(): ScrapperAdminRuntimeConfig | undefined {
   return window.__SCRAPPER_ADMIN_CONFIG__;
 }
 
-export function isServerManagedApi(): boolean {
-  return Boolean(getRuntimeConfig()?.serverAuth);
+export function hasRuntimeApiBase(): boolean {
+  return Boolean(getRuntimeConfig()?.proxyMode);
 }

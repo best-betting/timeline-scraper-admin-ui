@@ -10,7 +10,7 @@ export function SettingsPage() {
     setApiBaseUrl,
     saveAdminApiKey,
     resetToDefaults,
-    serverManagedApi
+    apiBaseFromServer
   } = useSettings();
 
   const [draftKey, setDraftKey] = useState(adminApiKey);
@@ -33,9 +33,9 @@ export function SettingsPage() {
       <header>
         <h1 className="page-title">Settings</h1>
         <p className="text-slate-500 text-sm mt-1">
-          {serverManagedApi
-            ? 'API URL and auth are set by the server (SCRAPPER_UPSTREAM secret).'
-            : 'API key is saved to browser localStorage when you click Save.'}
+          {apiBaseFromServer
+            ? 'API calls go to this UI server, which proxies to timeline-scraper (SCRAPPER_UPSTREAM secret).'
+            : 'Dev: API key is saved to browser localStorage when you click Save.'}
         </p>
       </header>
 
@@ -47,19 +47,19 @@ export function SettingsPage() {
             value={apiBaseUrl}
             onChange={(e) => setApiBaseUrl(e.target.value)}
             placeholder={defaultScrapperApiBase()}
-            disabled={serverManagedApi}
-            readOnly={serverManagedApi}
+            disabled={apiBaseFromServer}
+            readOnly={apiBaseFromServer}
           />
           <span className="text-[10px] text-slate-600">
-            {serverManagedApi ? (
+            {apiBaseFromServer ? (
               <>
-                Proxied to <code className="text-accent/70">SCRAPPER_UPSTREAM</code> from k8s secret via{' '}
-                <code className="text-accent/70">{apiBaseUrl}</code>.
+                Browser → <code className="text-accent/70">{apiBaseUrl}</code>/admin/v1/… → UI server →{' '}
+                <code className="text-accent/70">SCRAPPER_UPSTREAM</code>/admin/v1/….
               </>
             ) : (
               <>
-                Default: <code className="text-accent/70">{defaultScrapperApiBase()}</code> (same-origin proxy →
-                scrapper). Use Reset if fetches fail.
+                Dev default: <code className="text-accent/70">{defaultScrapperApiBase()}</code> (Vite proxy →
+                scrapper).
               </>
             )}
           </span>
@@ -70,32 +70,29 @@ export function SettingsPage() {
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="password"
-              className="input-touch font-mono flex-1 disabled:opacity-60"
+              className="input-touch font-mono flex-1"
               value={draftKey}
               onChange={(e) => setDraftKey(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && keyDirty && !serverManagedApi) handleSaveKey();
+                if (e.key === 'Enter' && keyDirty) handleSaveKey();
               }}
-              placeholder={serverManagedApi ? 'Injected server-side' : 'SCRAPPER_ADMIN_API_KEY'}
+              placeholder="SCRAPPER_ADMIN_API_KEY (if not in k8s secret)"
               autoComplete="off"
-              disabled={serverManagedApi}
             />
-            {!serverManagedApi && (
-              <Button
-                variant="primary"
-                className="sm:w-auto w-full shrink-0"
-                disabled={!keyDirty}
-                onClick={handleSaveKey}
-              >
-                {keySaved ? 'Saved' : 'Save key'}
-              </Button>
-            )}
+            <Button
+              variant="primary"
+              className="sm:w-auto w-full shrink-0"
+              disabled={!keyDirty}
+              onClick={handleSaveKey}
+            >
+              {keySaved ? 'Saved' : 'Save key'}
+            </Button>
           </div>
-          {!serverManagedApi && (
-            <span className="text-[10px] text-slate-600 block">
-              {adminApiKey ? 'A key is saved in this browser.' : 'Enter your key and click Save key.'}
-            </span>
-          )}
+          <span className="text-[10px] text-slate-600 block">
+            {adminApiKey
+              ? 'Key saved in this browser (used when SCRAPPER_ADMIN_API_KEY is not set on the server).'
+              : 'Optional in prod if the k8s secret already sets SCRAPPER_ADMIN_API_KEY.'}
+          </span>
         </div>
 
         <Button variant="ghost" onClick={resetToDefaults}>

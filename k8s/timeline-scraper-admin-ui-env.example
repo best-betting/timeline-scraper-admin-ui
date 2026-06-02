@@ -6,4 +6,5 @@
 #     -n timeline-scraper
 
 SCRAPPER_ADMIN_API_KEY=
+# In-cluster scrapper root — UI forwards /sports-data-admin/api/* here unchanged.
 SCRAPPER_UPSTREAM=http://timeline-scraper:4011

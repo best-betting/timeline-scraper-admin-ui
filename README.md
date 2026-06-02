@@ -20,7 +20,7 @@ npm run dev
 
 Open **http://localhost:5174/sports-data-admin/** (when `VITE_APP_BASE_PATH=/sports-data-admin`). Defaults come from `.env`; **Settings** can override (stored in localStorage).
 
-- **API base URL** — defaults to `{VITE_APP_BASE_PATH}/scrapper-api` (same-origin; Vite/Node proxy → scrapper `:4011`)
+- **API base URL** — defaults to `{VITE_APP_BASE_PATH}/api` (UI server proxies → `SCRAPPER_UPSTREAM`)
 - **Admin API key** — same as `SCRAPPER_ADMIN_API_KEY` on timeline-scraper
 
 Start timeline-scraper first (`npm start` in `timeline-scraper/`).
@@ -44,7 +44,7 @@ See `docs/ADMIN_API.md` and `timeline-scrapper/src/application/adminRoutes.js`.
 
 ## Vite dev proxy
 
-`vite.config.ts` proxies `{VITE_APP_BASE_PATH}/scrapper-api` → `http://127.0.0.1:4011`.
+`vite.config.ts` proxies `{VITE_APP_BASE_PATH}/api` → `http://127.0.0.1:4011`.
 
 ## Base path
 
@@ -54,7 +54,7 @@ Set **`VITE_APP_BASE_PATH`** (no trailing slash) at build time — default **`/s
 |-------|---------|
 | Vite build | `base` → assets under `/sports-data-admin/` |
 | React Router | `basename` |
-| API default | `/sports-data-admin/scrapper-api` |
+| API default | `/sports-data-admin/api` (+ scrapper path, e.g. `/admin/v1/stats`) |
 | Node server (prod) | `APP_BASE_PATH` env — must match the build value |
 
 Docker / CI: `VITE_APP_BASE_PATH` and `APP_BASE_PATH` build args. k8s: `APP_BASE_PATH` in `k8s/deployment.yaml`.
@@ -96,4 +96,4 @@ kubectl apply -f k8s/service.yaml -n timeline-scraper
 
 **GitHub Actions:** push `main` → `docker build/push` (`sha-$GITHUB_SHA` + `latest`) → `kubectl set image deployment/timeline-scraper-admin-ui …`. Uses the same `k3s` environment secrets as timeline-scraper (`REGISTRY_*`, `KUBE_CONFIG`).
 
-**Settings in prod:** API URL and Bearer auth come from the server — `SCRAPPER_UPSTREAM` and `SCRAPPER_ADMIN_API_KEY` in secret `timeline-scraper-admin-ui-env`. The browser calls same-origin `{APP_BASE_PATH}/scrapper-api`; Node proxies to the scrapper Service.
+**Settings in prod:** Browser → `{APP_BASE}/api/admin/v1/…` on the UI pod → `SCRAPPER_UPSTREAM/admin/v1/…`. Auth from `SCRAPPER_ADMIN_API_KEY` secret (or Settings if empty).

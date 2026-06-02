@@ -1,7 +1,7 @@
 # Build from repo root (scrapper-admin-ui/):
 #   docker build -t scrapper-admin-ui .
 #
-# Production: Node serves dist/ under APP_BASE_PATH and proxies {base}/scrapper-api.
+# Production: Node serves UI; {APP_BASE}/api/* → SCRAPPER_UPSTREAM.
 FROM node:20-alpine AS build
 WORKDIR /app
 
@@ -24,6 +24,7 @@ ARG APP_BASE_PATH=/sports-data-admin
 ENV APP_BASE_PATH=$APP_BASE_PATH
 
 COPY server.mjs ./
+COPY server ./server
 COPY shared ./shared
 COPY --from=build /app/dist ./dist
 
