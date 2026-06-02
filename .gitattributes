@@ -1,3 +1,4 @@
+docker/*.sh text eol=lf
 docker-entrypoint.d/* text eol=lf
 nginx/* text eol=lf
 Dockerfile text eol=lf

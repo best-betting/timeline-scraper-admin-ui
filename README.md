@@ -58,7 +58,7 @@ docker run --rm -p 8080:80 \
   -e SCRAPPER_UPSTREAM=http://host.docker.internal:4011 \
   -e SCRAPPER_ADMIN_API_KEY=your-admin-key \
   scrapper-admin-ui
-# Uses nginx /docker-entrypoint.d/99-scrapper-proxy-config.sh (not a custom ENTRYPOINT).
+# Entrypoint: /usr/local/bin/start.sh (envsubst nginx config, then nginx).
 ```
 
 Open http://localhost:8080 — API base `/scrapper-api` (nginx → scrapper).

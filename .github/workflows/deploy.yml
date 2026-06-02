@@ -47,15 +47,13 @@ jobs:
           tags: |
             ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}
             ${{ steps.tag.outputs.image }}:latest
-          cache-from: type=gha,scope=scrapper-admin-ui
-          cache-to: type=gha,mode=max,scope=scrapper-admin-ui
+          # No GHA cache — stale layers once shipped a broken /docker-entrypoint.sh overlay.
 
-      - name: Verify image starts with nginx entrypoint
+      - name: Verify image starts
         run: |
           IMAGE="${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}"
           docker pull "$IMAGE"
-          docker run --rm --entrypoint sh "$IMAGE" -c \
-            'test -x /docker-entrypoint.sh && test -x /docker-entrypoint.d/99-scrapper-proxy-config.sh'
+          docker run --rm --entrypoint sh "$IMAGE" -c 'test -x /usr/local/bin/start.sh'
           CID=$(docker run -d -e SCRAPPER_UPSTREAM=http://127.0.0.1:9 -e SCRAPPER_ADMIN_API_KEY=ci "$IMAGE")
           trap 'docker rm -f "$CID" >/dev/null 2>&1 || true' EXIT
           for i in $(seq 1 30); do
@@ -104,6 +102,12 @@ jobs:
         run: |
           envsubst '${IMAGE_TAG}' < k8s/deployment.yaml | kubectl apply -f -
           kubectl apply -f k8s/service.yaml -n timeline-scraper
+          kubectl rollout restart deployment/scrapper-admin-ui -n timeline-scraper
 
       - name: Wait for rollout
         run: kubectl rollout status deployment/scrapper-admin-ui -n timeline-scraper --timeout=300s
+
+      - name: Show running image
+        run: |
+          kubectl get deployment scrapper-admin-ui -n timeline-scraper -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+          kubectl get pods -n timeline-scraper -l app=scrapper-admin-ui -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[0].image}{"\t"}{.status.containerStatuses[0].state.waiting.reason}{"\n"}{end}'
