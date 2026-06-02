@@ -28,3 +28,18 @@ export function stripAppBasePath(pathname: string): string {
 
 /** Same-origin proxy prefix; Node forwards to SCRAPPER_UPSTREAM from k8s secrets. */
 export function defaultScrapperApiBase(): string {
+  const runtime = getRuntimeConfig();
+  if (runtime?.apiBaseUrl) return runtime.apiBaseUrl;
+
+  if (import.meta.env.DEV) {
+    const override = import.meta.env.VITE_SCRAPPER_API_BASE_URL?.trim();
+    if (override) {
+      if (appBasePath && !override.startsWith(appBasePath)) {
+        return `${appBasePath}/scrapper-api`;
+      }
+      return override;
+    }
+  }
+
+  return appBasePath ? `${appBasePath}/scrapper-api` : '/scrapper-api';
+}
