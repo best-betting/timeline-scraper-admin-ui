@@ -81,15 +81,15 @@ export function LinkProcessorPanel({ appId, matchKey, kickoffUtc, onApplied }: P
       <div>
         <h2 className="text-sm font-semibold text-white">Process match link</h2>
         <p className="text-xs text-slate-500 mt-1">
-          Paste an AiScore head-to-head or match URL. Scores are read for this fixture&apos;s kickoff
-          date only — no search, no provider ladder.
+          Paste a match URL from AiScore, SofaScore, or Flashscore. Scores are extracted for this
+          fixture&apos;s kickoff date (AiScore H2H) or from the match page — no search, no ladder.
         </p>
       </div>
 
       <input
         type="url"
         className="input-touch w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-mono text-slate-100"
-        placeholder="https://www.aiscore.com/head-to-head/..."
+        placeholder="https://www.aiscore.com/head-to-head/... or sofascore.com / flashscore.com match URL"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
       />
