@@ -107,7 +107,7 @@ export function LinkProcessorPanel({ appId, matchKey, kickoffUtc, onApplied }: P
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           disabled={!url.trim() || busy}
           onClick={() => preview.mutate()}
         >
