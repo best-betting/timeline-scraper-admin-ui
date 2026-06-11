@@ -83,7 +83,8 @@ export function FixturesPage() {
         ...(team ? { team } : {}),
         ...(dataStatus ? { dataStatus } : {}),
         source,
-        ...(!showIdle ? { activeOnly: '1' } : {}),
+        // activeOnly hides archived rows (they have 0 active legs); only filter live sessions.
+        ...(!showIdle && source === 'session' ? { activeOnly: '1' } : {}),
       }),
     refetchInterval: 20_000,
     retry: false,
